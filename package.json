@@ -1,0 +1,26 @@
+{
+  "name": "cv-script",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://empty916@github.com/empty916/cv-script.git"
+  },
+  "keywords": [
+    "cv"
+  ],
+  "author": "empty916",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/empty916/cv-script/issues"
+  },
+  "homepage": "https://github.com/empty916/cv-script#readme",
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "readline-sync": "^1.4.10"
+  }
+}
