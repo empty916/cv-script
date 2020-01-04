@@ -8,7 +8,7 @@
 
 ### talk is cheap
 
-```node
+```javascript 1.8
 
 // 导入包
 const CvScript = require('cv-script').default;
@@ -39,7 +39,7 @@ cvs.start();
 
 ### questions: Question[]
 
-```ts
+```typescript
 
 export interface Question {
 	question: string | any[]; 
