@@ -13,6 +13,9 @@ export default class Read {
         }
         this.dir = templateDir;
     }
+    static IsExist(dir: string): boolean {
+        return fs.existsSync(dir)
+    }
     isExist(dir: string): boolean {
         return fs.existsSync(dir)
     }
@@ -38,5 +41,14 @@ export default class Read {
         return this.getSubList(p)
             .filter((i: Dirent) => !i.isDirectory())
             .map((i: Dirent) => i.name);
+    }
+    static GetFileData(p: string): string {
+        return fs.readFileSync(p, {encoding: 'utf-8'});
+    }
+    getFileData(p: string): string {
+        if (!this.isExist(p)) {
+            throw new Error(`文件${p}不存在!`);
+        }
+        return fs.readFileSync(p, {encoding: 'utf-8'});
     }
 }

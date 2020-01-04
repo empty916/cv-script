@@ -11,6 +11,9 @@ var Read = /** @class */ (function () {
         }
         this.dir = templateDir;
     }
+    Read.IsExist = function (dir) {
+        return fs.existsSync(dir);
+    };
     Read.prototype.isExist = function (dir) {
         return fs.existsSync(dir);
     };
@@ -43,6 +46,15 @@ var Read = /** @class */ (function () {
         return this.getSubList(p)
             .filter(function (i) { return !i.isDirectory(); })
             .map(function (i) { return i.name; });
+    };
+    Read.GetFileData = function (p) {
+        return fs.readFileSync(p, { encoding: 'utf-8' });
+    };
+    Read.prototype.getFileData = function (p) {
+        if (!this.isExist(p)) {
+            throw new Error("\u6587\u4EF6" + p + "\u4E0D\u5B58\u5728!");
+        }
+        return fs.readFileSync(p, { encoding: 'utf-8' });
     };
     return Read;
 }());

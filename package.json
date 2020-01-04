@@ -5,8 +5,8 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "node ./dist/index.js",
-    "watch": "tsc",
+    "dev": "rimraf tempDist/** && node ./example/index.js",
+    "watch": "rimraf dist && tsc",
     "test": "test"
   },
   "repository": {
@@ -25,7 +25,10 @@
   "devDependencies": {
     "@types/node": "^13.1.2",
     "jest": "^24.9.0",
-    "readline-sync": "^1.4.10",
+    "rimraf": "^3.0.0",
     "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "readline-sync": "^1.4.10"
   }
 }
