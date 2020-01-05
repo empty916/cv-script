@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "dev": "rimraf tempDist/** && node ./example/index.js",
+    "dev": "rimraf tempDist/** && rimraf tempDist2/** && node ./example/index.js",
     "watch": "rimraf dist && tsc",
     "test": "test"
   },

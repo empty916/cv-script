@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 
 
-type Params = {
+export type Params = {
     fileName: string;
 }
 
@@ -27,7 +27,7 @@ export default class Write {
             return Write.mkdir(fileDirPath, dirPathNodes.slice(1).join(''));
         }
     }
-    static write(filePath: string, template: Template, maps: FileDataMap[], params: Params): void {
+    static write(filePath: string, template: Required<Template>, maps: FileDataMap[], params: Params): void {
         const fileData = maps.reduce((finalData, m) => m(finalData, params, template), (template.data as string));
         fs.writeFileSync(filePath, fileData, {encoding: 'utf-8'});
     }

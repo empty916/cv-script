@@ -11,11 +11,19 @@ export const isRegExp = (value: any): value is RegExp => value instanceof RegExp
 
 export const isFunc = (value: any): value is Function => typeof value === 'function';
 
+export const firstCharToUpperCase = (str: string) => str[0].toUpperCase() + str.slice(1);
+export const firstCharToLowerCase = (str: string) => str[0].toLowerCase() + str.slice(1);
+
 export const fileDataMap: FileDataMap = (fileData, params, template) => {
-    const lowerCaseModuleName = params.moduleName[0].toLowerCase() + params.moduleName.slice(1);
-    const firstCharUpperCaseModuleName = params.moduleName[0].toUpperCase() + params.moduleName.slice(1);
+    let {moduleName, fileName} = params;
+    if (!moduleName) {
+        moduleName = fileName.split(/[\/\-]/g).map(firstCharToUpperCase).join('');
+        moduleName = firstCharToLowerCase(moduleName);
+    }
+    const lowerCaseModuleName = moduleName[0].toLowerCase() + moduleName.slice(1);
+    const firstCharUpperCaseModuleName = moduleName[0].toUpperCase() + moduleName.slice(1);
     if (template.templateName.indexOf('.scss') > -1) {
-        return fileData.replace(/template/g, params.fileName.replace(/\//g, '-'));
+        return fileData.replace(/template/g, fileName.replace(/\//g, '-'));
     }
     return fileData.replace(/Template/g, firstCharUpperCaseModuleName).replace(/template/g, lowerCaseModuleName);
 };

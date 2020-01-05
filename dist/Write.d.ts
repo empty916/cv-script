@@ -1,5 +1,5 @@
 import { Template } from './index';
-declare type Params = {
+export declare type Params = {
     fileName: string;
 };
 export declare type FileDataMap<T extends {
@@ -7,6 +7,5 @@ export declare type FileDataMap<T extends {
 } = any> = (fileData: string, params: T & Params, template: Template) => string;
 export default class Write {
     static mkdir(dirPath: string, dirName: string): void;
-    static write(filePath: string, template: Template, maps: FileDataMap[], params: Params): void;
+    static write(filePath: string, template: Required<Template>, maps: FileDataMap[], params: Params): void;
 }
-export {};
