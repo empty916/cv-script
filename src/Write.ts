@@ -1,4 +1,6 @@
 import { Template } from './index';
+import Read from "./Read";
+import consoleStyle from "./consoleStyle";
 
 const fs = require('fs');
 const path = require('path');
@@ -14,7 +16,8 @@ export type FileDataMap<T extends {[k: string]: string;} = any> = (fileData: str
 export default class Write {
     static mkdir(dirPath: string, dirName: string): void {
         if (dirName.indexOf('.') > -1) {
-            throw new Error('文件名称不应该包含"."字符！');
+            console.log(consoleStyle.red, '文件名称不应该包含"."字符！');
+            process.exit();
         }
         const dirPathNodes = dirName.split('/');
         const pathNode = dirPathNodes[0];

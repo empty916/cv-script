@@ -1,5 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var consoleStyle_1 = __importDefault(require("./consoleStyle"));
 var fs = require('fs');
 var glob = require('glob');
 var path = require('path');
@@ -7,7 +11,8 @@ var Read = /** @class */ (function () {
     function Read(templateDir) {
         var templateFileIsExist = this.isExist(templateDir);
         if (!templateFileIsExist) {
-            throw new Error("\u6A21\u677F\u76EE\u5F55\uFF1A" + templateDir + "\u4E0D\u5B58\u5728!");
+            console.log(consoleStyle_1.default.red, "\u6A21\u677F\u76EE\u5F55\uFF1A" + templateDir + "\u4E0D\u5B58\u5728!");
+            process.exit();
         }
         this.dir = templateDir;
     }
@@ -52,7 +57,8 @@ var Read = /** @class */ (function () {
     };
     Read.prototype.getFileData = function (p) {
         if (!this.isExist(p)) {
-            throw new Error("\u6587\u4EF6" + p + "\u4E0D\u5B58\u5728!");
+            console.log(consoleStyle_1.default.red, "\u6587\u4EF6" + p + "\u4E0D\u5B58\u5728!");
+            process.exit();
         }
         return fs.readFileSync(p, { encoding: 'utf-8' });
     };

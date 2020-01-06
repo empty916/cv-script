@@ -45,6 +45,7 @@ export default class CvScript {
     startRead(template: Template): (Template & {
         data: string;
     })[];
+    checkFileIsExist(writeFiles: WriteFile[], fileName: string): void;
     startWrite(templates: (Template & {
         data: string;
     })[]): void;

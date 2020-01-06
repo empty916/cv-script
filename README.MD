@@ -1,6 +1,6 @@
 # cv-script使用手册
 
-###介绍
+### 介绍
 
 1. 这是一个复制粘贴脚本
 1. 它可以复制一个文件，并替换文件中你想要替换的字符
@@ -8,7 +8,7 @@
 
 ### talk is cheap
 
-```javascript 1.8
+```js
 
 // 导入包
 const CvScript = require('cv-script').default;
@@ -29,6 +29,11 @@ const cvs = new CvScript({
   templateFilePath: templatePath, // 这是存放文件模板的路径
   distPath: distPath, // 这是文件需要复制到哪里的路径
   fileDataMaps: [fileDataMap], // 这是文件内容替换工具函数
+  filterSelectTemplate: templates => templates.filter(t => t.templateName !== 'uselessTemplateName'), // 过滤无用的模板
+  mapWriteFile: (files, params, isCvDir) => { // 对需要拷贝的文件做最终处理 
+      let finalFiles = [...files];
+      return finalFiles;
+  }
 });
 
 // 开始执行
@@ -70,10 +75,14 @@ export interface Question {
 
 ```typescript
 
+
 type Template = {
     templateName: string,
     templatePath: string,
     data?: string,
+    distPath?: string,
+    fileName?: string,
+    isCvDir?: boolean,
 }
 
 type Params = {
@@ -81,4 +90,34 @@ type Params = {
 }
 
 type FileDataMap<T extends {[k: string]: string;} = any> = (fileData: string, params: T & Params, template: Template) => string;
+```
+
+
+### filterSelectTemplate: (t: Templates[]) => Templates[]
+
+在询问用户选择模板之前，会对识别的模板进行自定义筛选
+
+### mapWriteFile，对最终需要拷贝的文件进行处理
+
+```typescript
+
+
+export type Template = {
+    templateName: string,
+    templatePath: string,
+    data?: string, // 最终拷贝的文件数据
+    distPath?: string, // 文件拷贝的地址
+    fileName?: string, // 文件名
+    isCvDir?: boolean, // 此文件是，文件夹拷贝类型还是文件拷贝类型
+}
+
+export type WriteFile = Required<Template>;
+
+export type Params = {
+    fileName: string;
+}
+
+type MapWriteFile = (files: WriteFile[], params: Params & {[k: string]: string}, isCvDir: boolean) => WriteFile[];
+
+
 ```

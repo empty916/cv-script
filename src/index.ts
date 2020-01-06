@@ -64,10 +64,12 @@ export default class CvScript {
         mapWriteFile,
     }: CvScriptConstructor) {
         if (isUndef(templateFilePath) && isUndef(templateDirPath)) {
-            throw new Error('请提供模板文件或模板文件夹的目录。')
+            console.log(consoleStyle.red, '请提供模板文件或模板文件夹的目录。');
+            process.exit();
         }
         if (!Read.IsExist(distPath)) {
-            throw new Error('distPath不存在！');
+            console.log(consoleStyle.red, 'distPath不存在！');
+            process.exit();
         }
         this.customInteraction = new Interaction([fileNameQuestion, ...(questions || [])]);
         // 当文件夹模板地址和文件模板地址同时存在，则需要询问用户要拷贝哪种。
@@ -117,14 +119,16 @@ export default class CvScript {
             tempPathList = (this.readFile as Read).getSubFileList();
         }
         if (tempList.length === 0) {
-            throw new Error(`当前提供的模板目录下，无可用${this.isCvDir ? '文件夹' : '文件'}！`);
+            console.log(consoleStyle.red, `当前提供的模板目录下，无可用${this.isCvDir ? '文件夹' : '文件'}！`);
+            process.exit();
         }
 
         let templates: Template[] = tempList.map((t, i) => ({templateName: t, templatePath: tempPathList[i]}));
         if (!isUndef(this.filterSelectTemplate)) {
             templates = this.filterSelectTemplate(templates);
             if (templates.length === 0) {
-                throw new Error(`当前提供的模板目录下，无可用${this.isCvDir ? '文件夹' : '文件'}！`);
+                console.log(consoleStyle.red, `当前提供的模板目录下，无可用${this.isCvDir ? '文件夹' : '文件'}！`);
+                process.exit();
             }
         }
 
@@ -143,7 +147,37 @@ export default class CvScript {
             data: Read.GetFileData(temp.templatePath),
         }));
     }
+    checkFileIsExist(writeFiles: WriteFile[], fileName: string) {
+        writeFiles.forEach(wf => {
+            let filePath = wf.distPath;
+            let targetFilePath = '';
+            if (wf.isCvDir) {
+                const dirName = wf.fileName;
+                if (dirName.indexOf('/') > -1) {
+                    filePath = path.join(filePath, ...dirName.split('/'));
+                } else {
+                    filePath = path.join(filePath, dirName);
+                }
+                targetFilePath = path.join(filePath, wf.templateName);
+            } else {
+                // 需要创建多级文件
+                if (fileName.indexOf('/') > -1) {
+                    const fileDir = fileName.split('/');
+                    fileDir.pop();
+                    filePath = path.join(filePath, ...fileName.split('/'));
+                } else {
+                    filePath = path.join(filePath, fileName);
+                }
+                const fileExtension: string = (wf.templateName.match(/\.\w+$/) as Array<string>)[0];
+                targetFilePath = filePath + fileExtension;
+            }
 
+            if (Read.IsExist(targetFilePath)) {
+                console.log(consoleStyle.red, `${filePath}文件已经存在! 程序已终止！`);
+                process.exit();
+            }
+        })
+    }
     startWrite(templates: (Template & {data: string})[]) {
         this.customInteraction.start();
         const customParams: {
@@ -161,9 +195,13 @@ export default class CvScript {
         if (!isUndef(this.mapWriteFile)) {
             writeFiles = this.mapWriteFile(writeFiles, customParams, this.isCvDir);
             if (writeFiles.length === 0) {
-                throw new Error('after map write file: 没有可以写的文件对象。');
+                console.log(consoleStyle.red, 'after map write file: 没有可以写的文件对象。');
+                process.exit();
             }
         }
+
+        this.checkFileIsExist(writeFiles, fileName);
+
         writeFiles.forEach(wf => {
 
             let filePath = wf.distPath;
@@ -180,7 +218,6 @@ export default class CvScript {
                 const targetFilePath = path.join(filePath, wf.templateName);
                 Write.write(targetFilePath, wf, this.fileDataMaps, customParams);
             } else {
-                // let filePath = wf.distPath;
                 // 需要创建多级文件
                 if (fileName.indexOf('/') > -1) {
                     const fileDir = fileName.split('/');
@@ -195,43 +232,6 @@ export default class CvScript {
                 Write.write(targetFilePath, wf, this.fileDataMaps, customParams);
             }
         })
-
-        //
-        // if(this.isCvDir) {
-        //
-        //     writeFiles.forEach(wf => {
-        //         // 当前是拷贝的目录
-        //         let filePath = wf.distPath;
-        //         const dirName = wf.fileName;
-        //         Write.mkdir(wf.distPath, dirName);
-        //         // 需要创建多级文件
-        //         if (dirName.indexOf('/') > -1) {
-        //             filePath = path.join(filePath, ...dirName.split('/'));
-        //         } else {
-        //             filePath = path.join(filePath, dirName);
-        //         }
-        //         const targetFilePath = path.join(filePath, wf.templateName);
-        //         Write.write(targetFilePath, wf, this.fileDataMaps, customParams);
-        //     })
-        //
-        // } else {
-        //     writeFiles.forEach(wf => {
-        //         let filePath = wf.distPath;
-        //         // 需要创建多级文件
-        //         if (fileName.indexOf('/') > -1) {
-        //             const fileDir = fileName.split('/');
-        //             fileDir.pop();
-        //             Write.mkdir(wf.distPath, fileDir.join(''));
-        //             filePath = path.join(filePath, ...fileName.split('/'));
-        //         } else {
-        //             filePath = path.join(filePath, fileName);
-        //         }
-        //         const fileExtension: string = (wf.templateName.match(/\.\w+$/) as Array<string>)[0];
-        //         const targetFilePath = filePath + fileExtension;
-        //         Write.write(targetFilePath, wf, this.fileDataMaps, customParams);
-        //     });
-        //
-        // }
     }
 
     getTemplatePath(template: Template): Template[] {

@@ -20,6 +20,7 @@ export const fileDataMap: FileDataMap = (fileData, params, template) => {
         moduleName = fileName.split(/[\/\-]/g).map(firstCharToUpperCase).join('');
         moduleName = firstCharToLowerCase(moduleName);
     }
+
     const lowerCaseModuleName = moduleName[0].toLowerCase() + moduleName.slice(1);
     const firstCharUpperCaseModuleName = moduleName[0].toUpperCase() + moduleName.slice(1);
     if (template.templateName.indexOf('.scss') > -1) {

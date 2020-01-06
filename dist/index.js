@@ -36,10 +36,12 @@ var CvScript = /** @class */ (function () {
         var questions = _a.questions, distPath = _a.distPath, templateDirPath = _a.templateDirPath, templateFilePath = _a.templateFilePath, fileDataMaps = _a.fileDataMaps, filterSelectTemplate = _a.filterSelectTemplate, mapWriteFile = _a.mapWriteFile;
         this.isCvDir = false;
         if (utils_1.isUndef(templateFilePath) && utils_1.isUndef(templateDirPath)) {
-            throw new Error('请提供模板文件或模板文件夹的目录。');
+            console.log(consoleStyle_1.default.red, '请提供模板文件或模板文件夹的目录。');
+            process.exit();
         }
         if (!Read_1.default.IsExist(distPath)) {
-            throw new Error('distPath不存在！');
+            console.log(consoleStyle_1.default.red, 'distPath不存在！');
+            process.exit();
         }
         this.customInteraction = new Interaction_1.default(__spreadArrays([fileNameQuestion], (questions || [])));
         // 当文件夹模板地址和文件模板地址同时存在，则需要询问用户要拷贝哪种。
@@ -87,13 +89,15 @@ var CvScript = /** @class */ (function () {
             tempPathList = this.readFile.getSubFileList();
         }
         if (tempList.length === 0) {
-            throw new Error("\u5F53\u524D\u63D0\u4F9B\u7684\u6A21\u677F\u76EE\u5F55\u4E0B\uFF0C\u65E0\u53EF\u7528" + (this.isCvDir ? '文件夹' : '文件') + "\uFF01");
+            console.log(consoleStyle_1.default.red, "\u5F53\u524D\u63D0\u4F9B\u7684\u6A21\u677F\u76EE\u5F55\u4E0B\uFF0C\u65E0\u53EF\u7528" + (this.isCvDir ? '文件夹' : '文件') + "\uFF01");
+            process.exit();
         }
         var templates = tempList.map(function (t, i) { return ({ templateName: t, templatePath: tempPathList[i] }); });
         if (!utils_1.isUndef(this.filterSelectTemplate)) {
             templates = this.filterSelectTemplate(templates);
             if (templates.length === 0) {
-                throw new Error("\u5F53\u524D\u63D0\u4F9B\u7684\u6A21\u677F\u76EE\u5F55\u4E0B\uFF0C\u65E0\u53EF\u7528" + (this.isCvDir ? '文件夹' : '文件') + "\uFF01");
+                console.log(consoleStyle_1.default.red, "\u5F53\u524D\u63D0\u4F9B\u7684\u6A21\u677F\u76EE\u5F55\u4E0B\uFF0C\u65E0\u53EF\u7528" + (this.isCvDir ? '文件夹' : '文件') + "\uFF01");
+                process.exit();
             }
         }
         var selectTempInteractive = new Interaction_1.default([{
@@ -108,6 +112,39 @@ var CvScript = /** @class */ (function () {
         var templates = this.getTemplatePath(template);
         return templates.map(function (temp) { return (__assign(__assign({}, temp), { data: Read_1.default.GetFileData(temp.templatePath) })); });
     };
+    CvScript.prototype.checkFileIsExist = function (writeFiles, fileName) {
+        writeFiles.forEach(function (wf) {
+            var filePath = wf.distPath;
+            var targetFilePath = '';
+            if (wf.isCvDir) {
+                var dirName = wf.fileName;
+                if (dirName.indexOf('/') > -1) {
+                    filePath = path.join.apply(path, __spreadArrays([filePath], dirName.split('/')));
+                }
+                else {
+                    filePath = path.join(filePath, dirName);
+                }
+                targetFilePath = path.join(filePath, wf.templateName);
+            }
+            else {
+                // 需要创建多级文件
+                if (fileName.indexOf('/') > -1) {
+                    var fileDir = fileName.split('/');
+                    fileDir.pop();
+                    filePath = path.join.apply(path, __spreadArrays([filePath], fileName.split('/')));
+                }
+                else {
+                    filePath = path.join(filePath, fileName);
+                }
+                var fileExtension = wf.templateName.match(/\.\w+$/)[0];
+                targetFilePath = filePath + fileExtension;
+            }
+            if (Read_1.default.IsExist(targetFilePath)) {
+                console.log(consoleStyle_1.default.red, filePath + "\u6587\u4EF6\u5DF2\u7ECF\u5B58\u5728! \u7A0B\u5E8F\u5DF2\u7EC8\u6B62\uFF01");
+                process.exit();
+            }
+        });
+    };
     CvScript.prototype.startWrite = function (templates) {
         var _this = this;
         this.customInteraction.start();
@@ -117,9 +154,11 @@ var CvScript = /** @class */ (function () {
         if (!utils_1.isUndef(this.mapWriteFile)) {
             writeFiles = this.mapWriteFile(writeFiles, customParams, this.isCvDir);
             if (writeFiles.length === 0) {
-                throw new Error('after map write file: 没有可以写的文件对象。');
+                console.log(consoleStyle_1.default.red, 'after map write file: 没有可以写的文件对象。');
+                process.exit();
             }
         }
+        this.checkFileIsExist(writeFiles, fileName);
         writeFiles.forEach(function (wf) {
             var filePath = wf.distPath;
             if (wf.isCvDir) {
@@ -137,7 +176,6 @@ var CvScript = /** @class */ (function () {
                 Write_1.default.write(targetFilePath, wf, _this.fileDataMaps, customParams);
             }
             else {
-                // let filePath = wf.distPath;
                 // 需要创建多级文件
                 if (fileName.indexOf('/') > -1) {
                     var fileDir = fileName.split('/');
@@ -153,42 +191,6 @@ var CvScript = /** @class */ (function () {
                 Write_1.default.write(targetFilePath, wf, _this.fileDataMaps, customParams);
             }
         });
-        //
-        // if(this.isCvDir) {
-        //
-        //     writeFiles.forEach(wf => {
-        //         // 当前是拷贝的目录
-        //         let filePath = wf.distPath;
-        //         const dirName = wf.fileName;
-        //         Write.mkdir(wf.distPath, dirName);
-        //         // 需要创建多级文件
-        //         if (dirName.indexOf('/') > -1) {
-        //             filePath = path.join(filePath, ...dirName.split('/'));
-        //         } else {
-        //             filePath = path.join(filePath, dirName);
-        //         }
-        //         const targetFilePath = path.join(filePath, wf.templateName);
-        //         Write.write(targetFilePath, wf, this.fileDataMaps, customParams);
-        //     })
-        //
-        // } else {
-        //     writeFiles.forEach(wf => {
-        //         let filePath = wf.distPath;
-        //         // 需要创建多级文件
-        //         if (fileName.indexOf('/') > -1) {
-        //             const fileDir = fileName.split('/');
-        //             fileDir.pop();
-        //             Write.mkdir(wf.distPath, fileDir.join(''));
-        //             filePath = path.join(filePath, ...fileName.split('/'));
-        //         } else {
-        //             filePath = path.join(filePath, fileName);
-        //         }
-        //         const fileExtension: string = (wf.templateName.match(/\.\w+$/) as Array<string>)[0];
-        //         const targetFilePath = filePath + fileExtension;
-        //         Write.write(targetFilePath, wf, this.fileDataMaps, customParams);
-        //     });
-        //
-        // }
     };
     CvScript.prototype.getTemplatePath = function (template) {
         if (this.isCvDir) {

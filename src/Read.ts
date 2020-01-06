@@ -1,4 +1,5 @@
 import {Dirent} from "fs";
+import consoleStyle from "./consoleStyle";
 
 const fs = require('fs');
 const glob = require('glob');
@@ -9,7 +10,8 @@ export default class Read {
     constructor(templateDir: string) {
         const templateFileIsExist = this.isExist(templateDir);
         if (!templateFileIsExist) {
-            throw new Error(`模板目录：${templateDir}不存在!`);
+            console.log(consoleStyle.red, `模板目录：${templateDir}不存在!`);
+            process.exit();
         }
         this.dir = templateDir;
     }
@@ -47,7 +49,8 @@ export default class Read {
     }
     getFileData(p: string): string {
         if (!this.isExist(p)) {
-            throw new Error(`文件${p}不存在!`);
+            console.log(consoleStyle.red, `文件${p}不存在!`);
+            process.exit();
         }
         return fs.readFileSync(p, {encoding: 'utf-8'});
     }

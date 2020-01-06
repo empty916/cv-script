@@ -1,5 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var consoleStyle_1 = __importDefault(require("./consoleStyle"));
 var fs = require('fs');
 var path = require('path');
 var Write = /** @class */ (function () {
@@ -7,7 +11,8 @@ var Write = /** @class */ (function () {
     }
     Write.mkdir = function (dirPath, dirName) {
         if (dirName.indexOf('.') > -1) {
-            throw new Error('文件名称不应该包含"."字符！');
+            console.log(consoleStyle_1.default.red, '文件名称不应该包含"."字符！');
+            process.exit();
         }
         var dirPathNodes = dirName.split('/');
         var pathNode = dirPathNodes[0];
