@@ -19,7 +19,13 @@ export default class Write {
             console.log(consoleStyle.red, '文件名称不应该包含"."字符！');
             process.exit();
         }
-        const dirPathNodes = dirName.split('/');
+        const dirPathNodes: string[] = dirName.split('/');
+
+        const isFinalDirExist = fs.existsSync(path.join(dirPath, ...dirPathNodes));
+        if (isFinalDirExist) {
+            return;
+        }
+
         const pathNode = dirPathNodes[0];
         const fileDirPath = path.join(dirPath, pathNode);
         const isExist = fs.existsSync(fileDirPath);
@@ -27,7 +33,7 @@ export default class Write {
             fs.mkdirSync(fileDirPath);
         }
         if (dirPathNodes.length > 1) {
-            return Write.mkdir(fileDirPath, dirPathNodes.slice(1).join(''));
+            return Write.mkdir(fileDirPath, dirPathNodes.slice(1).join('/'));
         }
     }
     static write(filePath: string, template: Required<Template>, maps: FileDataMap[], params: Params): void {
